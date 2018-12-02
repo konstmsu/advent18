@@ -1,3 +1,5 @@
+package advent2018;
+
 import java.util.List;
 
 import static java.util.stream.Collectors.counting;

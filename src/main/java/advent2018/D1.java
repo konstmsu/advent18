@@ -1,3 +1,5 @@
+package advent2018;
+
 import java.util.HashSet;
 import java.util.List;
 
