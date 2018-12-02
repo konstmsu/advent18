@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class D1Tests {
 
     static <T> T useFile(Function<List<String>, T> test) throws IOException {
-        return test.apply(Files.readAllLines(Utils.of("d1i1.txt")));
+        return test.apply(Files.readAllLines(Utils.of("d01.txt")));
     }
 
     @Test

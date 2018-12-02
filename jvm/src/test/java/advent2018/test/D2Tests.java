@@ -26,7 +26,7 @@ public class D2Tests {
 
     @Test
     public void input1() throws IOException {
-        assertThat(D2.getChecksum(Files.readAllLines(Utils.of("D02.txt")))).isEqualTo(6474);
+        assertThat(D2.getChecksum(Files.readAllLines(Utils.of("d02.txt")))).isEqualTo(6474);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class D2Tests {
 
     @Test
     public void input2() throws IOException {
-        List<String> values = Files.readAllLines(Utils.of("D02.txt"));
+        List<String> values = Files.readAllLines(Utils.of("d02.txt"));
         String result = timeIt(() -> D2.findClosestLines(values));
         assertThat(result).isEqualTo("mxhwoglxgeauywfkztndcvjqr");
     }

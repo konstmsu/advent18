@@ -8,7 +8,7 @@ public class Utils {
     }
 
     public static Path of(String fileName) {
-        return Path.of("src/main/resources", fileName);
+        return Path.of("../_input", fileName);
     }
 
     public static <T> T timeIt(Supplier<T> action) {
