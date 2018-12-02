@@ -31,7 +31,7 @@ public class D2Tests {
 
     @Test
     public void sample2() {
-        assertThat(D2.getDifferingLetters(List.of(
+        assertThat(D2.findClosestLines(List.of(
                 "abcde",
                 "fghij",
                 "klmno",
@@ -44,7 +44,7 @@ public class D2Tests {
     @Test
     public void input2() throws IOException {
         List<String> values = Files.readAllLines(Utils.of("D02.txt"));
-        String result = timeIt(() -> D2.getDifferingLetters(values));
+        String result = timeIt(() -> D2.findClosestLines(values));
         assertThat(result).isEqualTo("mxhwoglxgeauywfkztndcvjqr");
     }
 }

@@ -21,7 +21,7 @@ public class D2 {
         return twos * threes;
     }
 
-    public static String getDifferingLetters(List<String> values) {
+    public static String findClosestLines(List<String> values) {
         for (var l = 0; l < values.size(); l++)
             for (var r = l + 1; r < values.size(); r++) {
                 var sl = values.get(l);
