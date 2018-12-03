@@ -23,7 +23,6 @@ public class D01 {
                 i++;
                 sum += v;
                 if (!seen.add(sum)) {
-                    System.out.println(String.format("Found repeated at %s%n", i));
                     return sum;
                 }
             }
