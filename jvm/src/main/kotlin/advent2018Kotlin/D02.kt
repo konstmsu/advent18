@@ -9,7 +9,7 @@ class D02 {
                         .groupBy { it -> it }
                         .filter { it -> it.component2().count() > 1 }
                         .keys
-            }.first();
+            }.first()
         }
     }
 }

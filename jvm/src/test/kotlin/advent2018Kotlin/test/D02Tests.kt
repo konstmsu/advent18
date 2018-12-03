@@ -10,6 +10,6 @@ class D02Tests {
     @Test
     fun input2() {
         assertThat(D02.input2(Files.readAllLines(Utils.of("d02.txt"))))
-                .isEqualTo("mxhwoglxgeauywfkztndcvjqr");
+                .isEqualTo("mxhwoglxgeauywfkztndcvjqr")
     }
 }

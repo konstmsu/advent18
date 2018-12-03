@@ -22,7 +22,7 @@ public class D01Tests {
 
     @Test
     public void test1() throws IOException {
-        assertThat((long)useFile(lines -> D01.findSum(lines))).isEqualTo(502);
+        assertThat((long)useFile(D01::findSum)).isEqualTo(502);
     }
 
     @Test
