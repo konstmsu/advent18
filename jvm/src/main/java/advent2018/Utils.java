@@ -13,9 +13,9 @@ public class Utils {
     }
 
     public static <T> T timeIt(Supplier<T> action) {
-        long start = System.nanoTime();
-        T result = action.get();
-        long end = System.nanoTime();
+        var start = System.nanoTime();
+        var result = action.get();
+        var end = System.nanoTime();
         System.out.printf("Took %.2fs%n", (end - start) * 0.001 * 0.001 * 0.001);
         return result;
     }

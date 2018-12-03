@@ -65,7 +65,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <release>8</release>
+                    <release>11</release>
                 </configuration>
             </plugin>
         </plugins>

@@ -7,7 +7,7 @@ import java.util.Set;
 public class D01 {
     public static long findSum(List<String> lines) {
         long sum = 0;
-        for(String l: lines)
+        for(var l: lines)
             sum += Integer.parseInt(l);
 
         return sum;
@@ -17,7 +17,7 @@ public class D01 {
         long sum = 0;
         Set<Long> seen = new HashSet<>();
         seen.add(sum);
-        int i = 0;
+        var i = 0;
         for(;;) {
             for (int v: values) {
                 i++;

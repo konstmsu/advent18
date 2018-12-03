@@ -8,9 +8,9 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class D02 {
     public static int getChecksum(Iterable<String> ids) {
-        int twos = 0;
-        int threes = 0;
-        for (String id : ids) {
+        var twos = 0;
+        var threes = 0;
+        for (var id : ids) {
             Map<Object, Long> groups = id.chars().boxed().collect(groupingBy(c -> c, counting()));
 
             if (groups.containsValue(3L))
@@ -23,14 +23,14 @@ public class D02 {
     }
 
     public static String findClosestLines(List<String> values) {
-        for (int l = 0; l < values.size(); l++)
-            for (int r = l + 1; r < values.size(); r++) {
-                String sl = values.get(l);
-                String sr = values.get(r);
+        for (var l = 0; l < values.size(); l++)
+            for (var r = l + 1; r < values.size(); r++) {
+                var sl = values.get(l);
+                var sr = values.get(r);
                 assert sl.length() == sr.length();
-                for (int i = 0; i < sl.length(); i++) {
-                    String lhead = sl.substring(0, i);
-                    String ltail = sl.substring(i + 1);
+                for (var i = 0; i < sl.length(); i++) {
+                    var lhead = sl.substring(0, i);
+                    var ltail = sl.substring(i + 1);
                     if (lhead.equals(sr.substring(0, i)) && ltail.equals(sr.substring(i+1)))
                         return lhead + ltail;
                 }

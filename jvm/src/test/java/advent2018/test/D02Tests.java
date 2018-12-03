@@ -44,8 +44,8 @@ public class D02Tests {
 
     @Test
     public void input2() throws IOException {
-        List<String> values = Files.readAllLines(Utils.of("d02.txt"));
-        String result = timeIt(() -> D02.findClosestLines(values));
+        var values = Files.readAllLines(Utils.of("d02.txt"));
+        var result = timeIt(() -> D02.findClosestLines(values));
         assertThat(result).isEqualTo("mxhwoglxgeauywfkztndcvjqr");
     }
 }
