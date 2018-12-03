@@ -2,11 +2,12 @@ package advent2018;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class D1 {
+public class D01 {
     public static long findSum(List<String> lines) {
         long sum = 0;
-        for(var l: lines)
+        for(String l: lines)
             sum += Integer.parseInt(l);
 
         return sum;
@@ -14,7 +15,8 @@ public class D1 {
 
     public static long findRepeatedSum(List<Integer> values) {
         long sum = 0;
-        var seen = new HashSet<>(List.of(0L));
+        Set<Long> seen = new HashSet<>();
+        seen.add(sum);
         int i = 0;
         for(;;) {
             for (int v: values) {
