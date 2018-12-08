@@ -56,7 +56,6 @@ public class D07 {
                 var foundWorker = false;
                 for (var j = 0; j < workers.length; j++) {
                     if (workers[j] == 0) {
-                        System.out.printf("Assigned job %s to worker %d%n", nextJob, j);
                         workers[j] = nextJob - 'A' + 1 + 60;
                         assignments[j] = nextJob;
                         prerequisites.remove(nextJob);
@@ -68,7 +67,6 @@ public class D07 {
                     continue;
             }
 
-            System.out.println(Arrays.stream(workers).mapToObj(v -> v + "").collect(Collectors.joining(" ")));
             var rem = Integer.MAX_VALUE;
             for (var i = 0; i < workerCount; i++) {
                 if (assignments[i] != null)
@@ -77,7 +75,6 @@ public class D07 {
 
             assert rem > 0;
 
-            System.out.printf("Working for %d...%n", rem);
             totalTime += rem;
             for (var j = 0; j < workers.length; j++) {
                 if (assignments[j] == null)
