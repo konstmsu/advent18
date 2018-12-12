@@ -1,13 +1,15 @@
-package advent2018;
+package advent2018.test;
 
+import advent2018.D11;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class D11Test {
+class D11Tests {
     @Test
     public void cellPowerTest() {
-        assertThat(D11.getCellPower(8, 3, 5)).isEqualTo(4);
+        Assertions.assertThat(D11.getCellPower(8, 3, 5)).isEqualTo(4);
         assertThat(D11.getCellPower(57, 122, 79)).isEqualTo(-5);
         assertThat(D11.getCellPower(39, 217, 196)).isEqualTo(0);
         assertThat(D11.getCellPower(71, 101, 153)).isEqualTo(4);

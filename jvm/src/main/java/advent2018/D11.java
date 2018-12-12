@@ -41,13 +41,13 @@ public class D11 {
         return getLargestTotalPowerPositionAndSize(gridNumber, 300, 300);
     }
 
-    static class Context {
+    public static class Context {
         final int gridNumber;
         final int w;
         final int h;
         final int[][][] cache;
 
-        Context(int gridNumber, int w, int h) {
+        public Context(int gridNumber, int w, int h) {
             this.gridNumber = gridNumber;
             this.w = w;
             this.h = h;
