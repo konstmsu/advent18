@@ -1,29 +1,61 @@
 package advent2018;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class D12 {
-    public static int solve1(List<String> rows) {
+    public static long solve1(List<String> rows) {
+        return solve(rows, 20);
+    }
+
+    public static long solve2(List<String> rows) {
+        return solve(rows, 50_000_000_000L);
+    }
+
+    private static long solve(List<String> rows, long generationCount) {
         var input = rows.get(0).substring("initial state: ".length());
         var rules = rows.stream().skip(2).map(r -> r.split(" => ")).collect(Collectors.toList());
+        return solve(input, rules, generationCount);
+    }
 
-        var generationCount = 20;
-        var zero = generationCount * 2;
-        var previous = stringOf('.', zero) + input + stringOf('.', zero);
-        for (var g = 0; g < generationCount; g++) {
-            System.out.println(previous);
-            var next = applyRules(previous, rules);
-            previous = next;
+    public static long solve(String input, List<String[]> rules, long generationCount) {
+        var seen = new HashMap<String, Long>();
+        var generationZeroOffsets = new HashMap<Long, Long>();
+        var zeroOffset = new long[1];
+        var current = input;
+
+        for (long g = 0; g < generationCount; g++) {
+            current = carvePlants(current, zeroOffset);
+
+            if (seen.containsKey(current)) {
+                long loopStart = seen.get(current);
+                System.out.printf("Looped generations %d-%d, zero offset %d%n", loopStart, g, zeroOffset[0]);
+                if (g - loopStart != 1) {
+                    throw new IllegalArgumentException("All calculations are based on loop of size 1");
+                }
+                var previousZeroOffset = generationZeroOffsets.get(loopStart);
+                var loopZeroOffset = zeroOffset[0] - previousZeroOffset;
+                var remainingGenerations = generationCount - g;
+                var remainingOffset = remainingGenerations * loopZeroOffset;
+                zeroOffset[0] += remainingOffset;
+                // let's imaging it's looped at g == 1
+                // loopOffset == 1
+                //
+                break;
+            }
+
+            seen.put(current, g);
+            generationZeroOffsets.put(g, zeroOffset[0]);
+            System.out.println(current);
+            current = applyRules(current, rules);
         }
 
-        var sum = 0;
-        for (var i = 0; i < previous.length(); i++) {
-            if (previous.charAt(i) == '#') {
-                sum += i - zero;
+        long sum = 0;
+        for (var i = 0; i < current.length(); i++) {
+            if (current.charAt(i) == '#') {
+                sum += i - zeroOffset[0];
             }
         }
 
@@ -58,42 +90,10 @@ public class D12 {
         return next.toString();
     }
 
-    static String carvePlants(String input, int) {
-        return stringOf('.', 4)
-                + input.substring(input.indexOf('#'), input.lastIndexOf('#'))
-                + stringOf('.', 4);
-    }
-
-    public static int solve2(List<String> rows) {
-        var input = rows.get(0).substring("initial state: ".length());
-        var rules = rows.stream().skip(2).map(r -> r.split(" => ")).collect(Collectors.toList());
-
-        var generationCount = 50_000_000_000L;
-        var zero = 5;
-        var previous = carvePlants(input);
-
-        var seen = new HashMap<String, Long>();
-
-        for (var g = 0L; g < generationCount; g++) {
-            if (seen.containsKey(previous)) {
-                System.out.printf("Looped generations [%d-%d]%n", seen.get(previous), g);
-                if (g - seen.get(previous) != 1)
-                    throw new IllegalArgumentException();
-                break;
-            } else {
-                seen.put(previous, g);
-            }
-            var next = applyRules(previous, rules);
-            previous = next;
-        }
-
-        var sum = 0;
-        for (var i = 0; i < previous.length(); i++) {
-            if (previous.charAt(i) == '#') {
-                sum += i - zero;
-            }
-        }
-
-        return sum;
+    static String carvePlants(String input, long[] offsetRef) {
+        var firstPlant = input.indexOf('#');
+        var fix = stringOf('.', 4);
+        offsetRef[0] += fix.length() - firstPlant;
+        return fix + input.substring(firstPlant, input.lastIndexOf('#') + 1) + fix;
     }
 }

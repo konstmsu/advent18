@@ -40,6 +40,21 @@ public class D12Tests {
     }
 
     @Test
+    public void solve2Tests() {
+        var shiftRight1 = List.of(new String[][]{new String[]{".#...", "#"}});
+        var shiftRight2 = List.of(new String[][]{new String[]{"#....", "#"}});
+
+        assertThat(D12.solve("#", shiftRight2, 1)).isEqualTo(2);
+
+        assertThat(D12.solve("#", shiftRight1, 0)).isEqualTo(0);
+        assertThat(D12.solve("#", shiftRight1, 1)).isEqualTo(1);
+        assertThat(D12.solve("#", shiftRight1, 2)).isEqualTo(2);
+
+        assertThat(D12.solve("#", shiftRight2, 0)).isEqualTo(0);
+        assertThat(D12.solve("#", shiftRight2, 2)).isEqualTo(4);
+    }
+
+    @Test
     public void sample1() {
         assertThat(D12.solve1(List.of(
                 "initial state: #..#.#..##......###...###",
@@ -68,6 +83,6 @@ public class D12Tests {
 
     @Test
     public void input2() throws IOException {
-        assertThat(D12.solve2(Files.readAllLines(Utils.of("d12.txt")))).isEqualTo(42);
+        assertThat(D12.solve2(Files.readAllLines(Utils.of("d12.txt")))).isEqualTo(1600000000401L);
     }
 }
