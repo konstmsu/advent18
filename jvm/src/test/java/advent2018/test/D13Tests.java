@@ -55,6 +55,12 @@ public class D13Tests {
     }
 
     @Test
+    public void input2() throws IOException {
+        assertThat(D13.getLastCartPoint(Files.readAllLines(Utils.of("d13.txt"))))
+                .isEqualTo(new int[]{84, 90});
+    }
+
+    @Test
     public void sample2() {
         assertThat(D13.getLastCartPoint(List.of(
                 "/>-<\\  ",
