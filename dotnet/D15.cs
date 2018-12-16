@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 public class D15
 {
@@ -14,6 +16,10 @@ public class D15
         for (var y = 0; y < lines.Count; y++)
         {
             var line = lines[y];
+
+            if (line.Length != lines[0].Length)
+                throw new ArgumentOutOfRangeException(nameof(lines), "Field is not uniform");
+
             currentField[y] = new char[line.Length];
             for (var x = 0; x < line.Length; x++)
             {
@@ -21,41 +27,173 @@ public class D15
                 currentField[y][x] = c;
 
                 if (c == 'E' || c == 'G')
-                    units.Add(new Unit(new Location(x, y), c));
+                    units.Add(new Unit((x, y), c));
             }
         }
 
-        this.Units = units;
+        Units = units;
     }
 
-    char GetChar(Location l) => this.currentField[l.y][l.x];
+    char GetChar(Location l) => currentField[l.Y][l.X];
+    char SetChar(Location l, char value) => currentField[l.Y][l.X] = value;
 
     bool IsWall(Location l) => GetChar(l) == '#';
 
-    internal (Location target, Location direction) ChooseMove(Unit unit)
+    public Location? ChooseNextMove(Unit unit)
     {
         var inRange = Units
             .Where(u => u.Race != unit.Race)
             .SelectMany(e => Adjacent(e.Location))
-            .Where(p => !IsWall(p)).ToList();
+            .Where(p => !IsWall(p));
 
-        var distances = Bfs(unit.Location, domain: ".");
-        var reachable = inRange.Where(r => distances.ContainsKey(r)).ToList();
-        var minDistance = reachable.Select(r => distances[r]).Min();
-        var nearest = reachable.Where(r => distances[r] == minDistance).ToList();
-        var chosen = nearest.OrderBy(p => p, ReadingOrderComparer.Default);
+        if (inRange.Contains(unit.Location))
+            throw new InvalidOperationException("Not supposed to move as have enemy in range");
 
-        return (target: inRange[0], direction: new Location(-10, -20));
+        var distanceFromUnit = Bfs(unit.Location, domain: ".");
+        var reachable = inRange.Where(r => distanceFromUnit.ContainsKey(r)).ToList();
+
+        if (!reachable.Any())
+            return null;
+
+        var minDistance = reachable.Select(r => distanceFromUnit[r]).Min();
+        var nearest = reachable.Where(r => distanceFromUnit[r] == minDistance);
+        var chosen = nearest.OrderBy(p => p).First();
+
+        var distanceFromChosen = Bfs(chosen, domain: ".");
+        var moves = Adjacent(unit.Location).Where(a => distanceFromChosen.ContainsKey(a)).OrderBy(a => distanceFromChosen[a]).ThenBy(l => l).ToList();
+        var moveTo = moves.First();
+
+        return moveTo;
     }
 
-    public class ReadingOrderComparer : IComparer<Location>
+    public string Render(bool includeHealth)
     {
-        public static ReadingOrderComparer Default;
+        var result = new List<StringBuilder>();
+        for (var y = 0; y < currentField.Length; y++)
+        {
+            var line = new StringBuilder(new string(currentField[y]));
+            if (includeHealth)
+            {
+                var units = Units.Where(u => u.Location.Y == y).OrderBy(u => u.Location.X).ToList();
+                if (units.Any())
+                {
+                    var healths = string.Join(", ", units.Select(u => $"{u.Race}({u.Health})"));
+                    line.Append("   ");
+                    line.Append(healths);
+                }
+            }
+            result.Add(line);
+        }
+        return string.Join(Environment.NewLine, result);
+    }
 
-        private ReadingOrderComparer() { }
+    public bool IsCombatOver { get; private set; }
+    public int CurrentRound { get; private set; }
 
-        public int Compare(Location x, Location y) =>
-            x.y == y.y ? x.x.CompareTo(y.x) : x.y.CompareTo(y.y);
+    internal void PlayRound()
+    {
+        if (IsCombatOver)
+            throw new InvalidOperationException();
+
+        CurrentRound++;
+        foreach (var unit in Units.OrderBy(u => u.Location).ToList())
+        {
+            if (unit.IsDead)
+                continue;
+
+            if (Units.Select(u => u.Race).Distinct().Count() < 2)
+            {
+                IsCombatOver = true;
+                break;
+            }
+
+            if (!TryAttack(unit))
+            {
+                var nextStep = ChooseNextMove(unit);
+
+                if (nextStep.HasValue)
+                    Move(unit, nextStep.Value);
+
+                TryAttack(unit);
+            }
+        }
+    }
+
+    private bool TryAttack(Unit unit)
+    {
+        var adjacent = Adjacent(unit.Location);
+        var enemies = Units.Where(u => u.Race != unit.Race && adjacent.Contains(u.Location)).OrderBy(e => e.Health).ThenBy(e => e.Location).ToList();
+        if (!enemies.Any())
+            return false;
+
+        var enemy = enemies.First();
+        enemy.Health -= unit.AttackPower;
+
+        if (enemy.Health <= 0)
+            Die(enemy);
+
+        return true;
+    }
+
+    public static D15 Solve1(string input)
+    {
+        var game = Parse(input.Trim().Split(Environment.NewLine));
+
+        while (!game.IsCombatOver)
+            game.PlayRound();
+
+        return game;
+    }
+
+    public static D15 Solve2(string input)
+    {
+        for (var elfAttack = 4; elfAttack < 200; elfAttack++)
+        {
+            var game = Parse(input.Trim().Split(Environment.NewLine));
+            var elves = game.Units.Where(u => u.Race == 'E');
+
+            foreach (var elf in elves)
+                elf.AttackPower = elfAttack;
+
+            var elfCount = elves.Count();
+
+            while (!game.IsCombatOver)
+                game.PlayRound();
+
+            if (elfCount == elves.Count())
+                return game;
+        }
+
+        throw new Exception();
+    }
+
+    public int Solution => (CurrentRound - 1) * Units.Sum(u => u.Health);
+
+    void Die(Unit unit)
+    {
+        if (GetChar(unit.Location) != unit.Race)
+            throw new Exception();
+
+        SetChar(unit.Location, '.');
+        unit.IsDead = true;
+        Units.Remove(unit);
+    }
+
+    private void Move(Unit unit, Location location)
+    {
+        var canMoveTo = Adjacent(unit.Location);
+        if (!canMoveTo.Contains(location))
+            throw new ArgumentOutOfRangeException(nameof(location), $"Can't move from {unit.Location} to {location}. Allowed to move only to {string.Join(", ", canMoveTo)}");
+
+        if (GetChar(unit.Location) != unit.Race)
+            throw new InvalidOperationException();
+
+        if (GetChar(location) != '.')
+            throw new InvalidOperationException();
+
+        SetChar(unit.Location, '.');
+        unit.Location = location;
+        SetChar(unit.Location, unit.Race);
     }
 
     private static Location[] Adjacent(Location l) => new[]
@@ -68,8 +206,10 @@ public class D15
 
     Dictionary<Location, int> Bfs(Location start, string domain)
     {
-        var distances = new Dictionary<Location, int>();
-        distances[start] = 0;
+        var distances = new Dictionary<Location, int>
+        {
+            [start] = 0
+        };
 
         var toVisit = new Queue<Location>();
         toVisit.Enqueue(start);
@@ -85,35 +225,57 @@ public class D15
         return distances;
     }
 
+    string RenderDistances(Dictionary<Location, int> distances)
+    {
+        var lines = currentField.Select(l => new StringBuilder(new string(l))).ToList();
+
+        foreach (var l in distances.Keys)
+            lines[l.Y][l.X] = (char)('0' + distances[l] % 10);
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
     public static D15 Parse(IEnumerable<string> lines)
     {
         return new D15(lines.ToList());
     }
 
-    public struct Location
+    public struct Location : IComparable<Location>
     {
-        public readonly int x;
-        public readonly int y;
+        public readonly int X;
+        public readonly int Y;
 
         public Location(int x, int y)
         {
-            this.x = x;
-            this.y = y;
+            X = x;
+            Y = y;
         }
 
-        public Location Offset(int dx, int dy) => new Location(x + dx, y + dy);
+        // Somehow OrderBy didn't work when passing an IComparer<Location>. So implementing IComparable<Location> as a workaround
+        public int CompareTo(Location o) => Y == o.Y ? X.CompareTo(o.X) : Y.CompareTo(o.Y);
+
+        public Location Offset(int dx, int dy) => (X + dx, Y + dy);
+
+        public static implicit operator Location((int x, int y) value) => new Location(value.x, value.y);
+
+        public static Location operator -(Location l, Location r) => (l.X - r.X, l.Y - r.Y);
+
+        public override string ToString() => $"{X},{Y}";
     }
 
     public class Unit
     {
-        public Location Location;
-        public int Health;
         public readonly char Race;
+        public int AttackPower = 3;
+
+        public Location Location;
+        public int Health = 200;
+        public bool IsDead;
 
         public Unit(Location location, char race)
         {
-            this.Location = location;
-            this.Race = race;
+            Location = location;
+            Race = race;
         }
     }
 }
